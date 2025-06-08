@@ -34,8 +34,8 @@
     plus:   find teste1/ -iname '*.txt'
             find teste1/ -iname '*.txt' -exec ls -l {} \;
     
-- [ ] Buscar conteúdo em arquivos com `grep`
-- [ ] Comparar arquivos com `diff`
+- [X] Buscar conteúdo em arquivos com `grep`
+- [X] Comparar arquivos com `diff`
 - [ ] Ver partições com `lsblk`, `df -hT`, `fdisk -l`
 - [X] Saber interpretar permissões `rwx` e alterá-las com `chmod`
 - [X] Usar `chown` e `chgrp` para alterar dono e grupo de arquivos
