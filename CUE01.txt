@@ -1,0 +1,148 @@
+#!/bin/bash
+
+# 👤 Criação e gerenciamento de usuários
+sudo adduser testeuser
+sudo passwd -l testeuser        # Bloquear senha
+sudo passwd -u testeuser        # Desbloquear senha
+sudo deluser testeuser          # Remover usuário
+sudo addgroup testegroup
+sudo adduser testeuser testegroup
+sudo delgroup testegroup
+
+# 🔐 Políticas de senha
+sudo chage -m 5 -M 90 -I 30 -W 14 testeuser
+sudo chage -l testeuser
+
+# 🏠 Permissões de diretório pessoal
+sudo chmod 0750 /home/testeuser
+sudo chown -R root:root /home/testeuser/
+sudo mkdir -p /home/archived_users/
+sudo mv /home/testeuser /home/archived_users/
+
+# 📁 Permissões de arquivos e diretórios
+touch file1 file2 file3 file4
+chmod u+x file1
+chmod o+wx file2
+chmod g-r file3
+chmod 777 file4
+
+# Permissões numéricas
+chmod 744 file1
+chmod 647 file2
+chmod 604 file3
+chmod 777 file4
+
+# Recursivamente: arquivos 644 e diretórios 755
+sudo find . -type f -print0 | xargs -0 sudo chmod 644
+sudo find . -type d -print0 | xargs -0 sudo chmod 755
+
+# 🧍 Alterar dono/grupo
+sudo chown root:root file1
+sudo chown renato:users file2
+
+# 🧷 Sticky bit (útil em /tmp)
+mkdir public_dir
+chmod 777 public_dir
+chmod +t public_dir
+
+# 🔐 SSH com chaves
+ssh-keygen -t rsa -b 4096
+ssh-copy-id usuario@localhost
+chmod 600 ~/.ssh/authorized_keys
+
+# 🚪 SSHD: restringir acesso por grupo
+sudo addgroup sshlogin
+sudo adduser testeuser sshlogin
+echo "AllowGroups sshlogin" | sudo tee -a /etc/ssh/sshd_config
+sudo systemctl restart ssh.service
+
+# 🔧 ACL (se necessário)
+sudo apt install -y acl
+sudo mount -o remount,acl /home
+sudo setfacl -m u:nobody:rwx /shared_dir
+sudo setfacl -d -m u:nobody:rwx /shared_dir
+
+# 🧹 Remoção forçada (cuidado)
+# sudo rm -rf /caminho/arquivo_ou_diretorio
+
+# ℹ️ Comandos informativos
+echo -e "\nInformações do sistema:"
+df -h
+free -m
+top -n 1 | head -n 15
+
+
+PARTE 2
+
+#!/bin/bash
+
+# 📁 Uso do sistema de arquivos
+cd ~
+mkdir teste_dir
+touch teste1.txt teste2.log
+
+# Comandos essenciais para navegação
+pwd
+ls -lAh
+lsblk
+df -hT
+
+# 🔎 Buscar arquivos
+find /etc -name "*.conf"
+find ~ -type f -size +1M
+grep -i "listen" /etc/ssh/sshd_config
+grep -r "PermitRootLogin" /etc/
+
+# 🔄 Comparar arquivos
+diff teste1.txt teste2.log
+
+# 🗃️ Verificar partições
+sudo fdisk -l
+sudo lsblk -f
+cat /proc/partitions
+
+# 📋 Verificar permissões de software (exemplo com apt)
+dpkg -s openssh-server | grep "^Status"
+dpkg -L openssh-server
+
+# 🧰 Manutenção de Recursos
+
+# 🔍 Verificar e monitorar logs
+sudo journalctl -xe
+sudo tail -n 50 /var/log/syslog
+sudo tail -n 50 /var/log/auth.log
+
+# 📆 Agendar tarefa com cron
+crontab -l
+echo "*/10 * * * * echo 'ping' >> /tmp/cron_teste.log" | crontab -
+
+# 🖴 Montar partição via fstab
+echo -e "\n# Entrada de teste para /dev/sdb1\n/dev/sdb1\t/mnt/usb\tvfat\tdefaults\t0\t0" | sudo tee -a /etc/fstab
+sudo mkdir -p /mnt/usb
+sudo mount -a && echo "✔ Montagem via fstab testada" || echo "❌ Erro ao montar"
+
+# 🔃 Nomear unidade USB
+# Exemplo: usar `e2label` para ext4 ou `mlabel` para FAT
+# sudo e2label /dev/sdb1 MYDISK
+
+# 🔌 Carregar e descarregar módulos do kernel
+lsmod | grep usb
+sudo modprobe loop
+sudo rmmod loop
+
+# 📦 Rotacionar logs (manual)
+sudo logrotate -d /etc/logrotate.conf
+
+# 🧠 Informações de uso do sistema
+free -h
+top -n 1 | head -n 20
+uptime
+
+# 🔐 SSH avançado: desativar root e ajustar porta
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bkp
+sudo sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
+sudo sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo systemctl restart ssh
+
+# ✅ Finalização
+echo -e "\n✔ Parte 3 concluída com comandos de sistema de arquivos e recursos."
