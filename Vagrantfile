@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "Jammy-Jellyfish" do |vm|
     vm.vm.box = "bento/ubuntu-22.04"
     vm.vm.hostname = "Jammy-Jellyfish"
-    vm.vm.network "private_network", ip: "192.168.56.41"
+    vm.vm.network "private_network", ip: "DEFINA IP FIXO"
 
     # Recursos: 2 CPUs, 4096 MB RAM
     vm.vm.provider "virtualbox" do |vb|
